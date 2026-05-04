@@ -1,0 +1,357 @@
+---
+title: "ESS 523A - Final Project"
+author: "Max Kirks"
+date: "May 4, 2026"
+output:
+  html_document:
+    theme: flatly
+    highlight: tango
+    toc: true
+    toc_float:
+      collapsed: false
+      smooth_scroll: true
+    toc_depth: 3
+    number_sections: true
+    fig_caption: true
+bibliography: references.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  message = FALSE,
+  warning = FALSE,
+  fig.align = "center"
+)
+
+# Load libraries
+library(ggplot2)
+library(knitr)
+library(kableExtra)
+library(dplyr)
+```
+
+------------------------------------------------------------------------
+
+For my Final Project in ESS 523A I have created reproducible, data-driven version of a restoration plan version of a Restoration Plan that I created for NR 678: Advanced Ecological Restoration, submitted May 13, 2025. Claude AI was used to help with formatting and data simulation.
+
+------------------------------------------------------------------------
+
+# Introduction
+
+The Groundwork Pear Orchard Restoration site is located 2.5 km from downtown Paonia in the North Fork Valley, situated along the North Fork of the Gunnison River in Western Colorado (see Appendix A for the site map). The river begins at its high point of 1,905 m just below the Paonia Dam at the confluence of Muddy and Anthracite Creeks and terminates where it meets the Gunnison River at an elevation of 1,550 m. Several small towns reside along this stretch of river, starting with Somerset in the upper part of the valley, followed by Paonia and then Hotchkiss as the river flows west. The cultural and economic center of the valley is Paonia, nestled between the base of Mount Lamborn (3,475 m) to the southeast and the Grand Mesa to the northwest. The North Fork Valley has a rich agricultural history as well as a legacy of coal mining, both of which have left lasting impacts on the local landscapes and economies.
+
+The climate and vegetation found throughout the North Fork Valley vary with elevation. Paonia has a semi-arid continental climate characterized by hot summers and moderately cold winters, with 240 sunny days and 39 cm of precipitation on average [@Jaquette2005]. This area of the North Fork Valley is dominated by Pinyon-juniper shrublands on the surrounding mesas and hillsides and Narrowleaf Cottonwood–Sandbar willow woodlands along the riparian corridor. The site that is the focus of this paper is located along the river corridor and has historically been characterized by these two ecosystems.
+
+The most prevalent native plant species found in the pinyon-juniper shrublands at this location are Utah juniper (*Sabina utahensis*), Common pinyon (*Pinus edulis*), Rabbitbrush (*Chrysothamnus* spp.), Big sagebrush (*Seriphidium tridentata*), Mountain mahogany (*Cercocarpus* spp.), and Blue grama grass (*Bouteloua gracilis*) [@NPS_PinyonJuniper]. The dominant species found in the cottonwood-willow woodlands are Narrow-leaf cottonwood (*Populus angustifolia*), Sandbar willow (*Salix exigua*), Field horsetail (*Equisetum arvense*), Western yarrow (*Achillea millefolium* var. *occidentalis*), Utah serviceberry (*Amelanchier utahensis*), and Cutleaf coneflower (*Rudbeckia laciniata*) [@Carsey2003].
+
+The 2-acre restoration site was converted from its native plant coverage to a Bartlett pear (*Pyrus communis*) orchard sometime in the early-to-mid 20th century and was managed as such up until the last 20 years. Currently, the site lies fallow with the pear trees left unmanaged and a mixture of orchard grass (*Dactylis glomerata*), winter vetch (*Vicia villosa*), and non-native weed species dominating the ground cover (see Appendices B, C, and D for photographs of the site). A mixture of native ruminant species including mule deer (*Odocoileus hemionus*) and elk (*Cervus canadensis nelsoni*) along with livestock graze the area periodically. While they are unmanaged, the pear trees still produce an abundance of fruit biannually, and a small portion is harvested for sale through local marketing outlets.
+
+The land where the site is located is privately owned by a local family and is currently stewarded by Groundwork, a non-profit educational farm that incorporates agricultural literacy and experiential learning with primitive skills-based workshops. The organization grows and sells produce and animal products for local outlets and hosts educational internships and events on site. The stewards have identified three interrelated goals for the restoration project:
+
+1.  **Ecological** — promote the biodiversity and resilience of naturalized areas surrounding agricultural production areas and develop agroforestry production systems
+2.  **Economic** — provide edible, medicinal, and forest products to be sold locally
+3.  **Social** — create an educational space for workshops on habitat restoration and agroecological production models
+
+Selection of the site's ecological reference condition is critical in providing a visual roadmap to guide restoration planning and implementation [@Clewell2013]. Given the site's proximity to relatively intact Pinyon-juniper shrublands and Cottonwood-willow woodlands, the primary reference condition will use a contemporary site (same place, same time). However, due to the legacy of anthropogenic land degradation over the past 150 years, historic models (same place, different time) will also be utilized to identify any missing ecological elements from the once undisturbed ecosystem.
+
+While the economic and social goals of this project are equally important, the focus of this paper will be on the ecological outcomes of restoration. The project's **ecological objective** will be completed in three phases:
+
+```{r objectives-table}
+objectives <- data.frame(
+  Phase = c("Phase 1 (Years 1–2)", "Phase 2 (Years 3–6)", "Phase 3 (Years 7+)"),
+  Objective = c(
+    "Increase biodiversity and resilience by removing 20% of non-native trees, grasses, and forbs along the site's perimeter and replacing them with a matrix of fast-growing native species in contoured windbreaks that resemble the site's reference conditions.",
+    "Develop agroforestry systems by removing 50% of the pear trees and planting a mix of native grasses and forbs to support intensive livestock integration.",
+    "Achieve full site function as a pinyon-juniper, cottonwood-willow agroforest."
+  )
+)
+
+kable(objectives,
+      col.names = c("Phase", "Ecological Objective"),
+      caption = "Table 1. Three-phase ecological objectives for the Groundwork Pear Orchard Restoration.",
+      align = c("l", "l")) %>%
+  kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                full_width = TRUE,
+                font_size = 14) %>%
+  column_spec(1, bold = TRUE, width = "20%") %>%
+  column_spec(2, width = "80%") %>%
+  row_spec(0, bold = TRUE, background = "#2c7a4b", color = "white")
+```
+
+------------------------------------------------------------------------
+
+# Constraints to Restoration
+
+Land conversion for agricultural use and the subsequent management practices have placed several biological, physical, and chemical constraints on restoration at this site. The removal of native plant species through clear-cutting and soil inversion by plowing and discing originally initiated a secondary successional phase where generally high amounts of nitrogen and soil organic matter were still available. Though nutrients and plant propagules have been present, ecologically disruptive land management practices have led to frequent recurrences of secondary succession throughout the past 120 years.
+
+Through the planting of non-native pear trees, orchard grass, and winter vetch and the frequent removal of native species, the diverse plant community that once inhabited the site has been significantly altered and many native plant propagules have been eliminated. This agricultural conversion has occurred across large swaths of the North Fork Valley, contributing to substantial landscape fragmentation that has made it difficult to find intact reference sites [@Jaquette2005]. Furthermore, substantial alterations to the North Fork River's hydrology — through upstream impoundment at the Paonia Reservoir, numerous agricultural water diversions, and lower yearly precipitation amounts — have removed the periodic flooding that historically characterized the site.
+
+With less native tree cover, the physical characteristics of the site have been drastically impacted. The quantity of sunlight reaching the soil surface has increased due to reduced canopy coverage, and the removal of native plant coverage has led to more bare soil, both of which have elevated surface soil temperatures [@Bazzaz1996]. The disturbance of native soil biota through repeated plowing and chemical herbicide treatments has damaged mycorrhizal networks and other soil microbes that play an important role in plant nutrient and water uptake [@Bazzaz1996]. There is also generally less nutrient availability due to the removal of litter and organic matter provided by native tree canopies and decaying plant matter. Additionally, periodic browsing by cattle and native herbivores has contributed to plant degradation and soil compaction.
+
+Perhaps the greatest constraint to restoration at this site is the increase in average temperatures and the shift in precipitation types and amounts caused by global climate change. This region of western Colorado has seen average temperatures increase by 3.0°C from 1985–2019, causing numerous drought events and altering precipitation from primarily snow to more rain during winter months (see Appendix E). This climatic shift has the potential to trigger alternative stable states, threatening the ability of the site to return to its historical reference condition [@Suding2004].
+
+Given these numerous constraints, prioritizing restoration activities that address multiple constraints simultaneously will be critical for the project's success. Implementing landform alterations in the form of contour furrows (swales) will store surface water and essential nutrients in the root zone, promoting plant establishment and biodiversity. Removing substantial areas of pear tree and non-native grass cover and replacing them with diverse native species will support soil biota health and increase available organic matter. Mimicking seasonal flood patterns through periodic flood watering will also reintroduce conditions favorable for the native Cottonwood/willow woodland historically found along this stretch of river corridor.
+
+------------------------------------------------------------------------
+
+# Restoration Activities
+
+The goals of this project emphasize ecosystem services that benefit economic and societal value, while also recovering the system's ability to function and adapt to change [@Suding2011]. Restoration activities will be implemented in three phases over seven or more years.
+
+```{r timeline-chart, fig.cap="Figure 1. Restoration activity timeline showing phased implementation, overlapping tasks, and key ecological interventions over a 10-year period.", fig.width=10, fig.height=6}
+library(ggplot2)
+
+activities <- data.frame(
+  Activity = c(
+    "Remove perimeter non-native vegetation",
+    "Swale design & excavation",
+    "Phase 1 tree removal (50% orchard thinning)",
+    "Soil ripping & primary tillage",
+    "Establish riparian windbreak plantings",
+    "Establish upland windbreak plantings",
+    "Seed agroforestry understory",
+    "Install flood irrigation infrastructure",
+    "Apply mulch & compost amendments",
+    "Begin adaptive livestock grazing"
+  ),
+  Start = c(1, 1, 1, 1.5, 2.5, 3, 3, 6.5, 6.5, 4),
+  End   = c(2, 2.5, 2.5, 3,   5,   5, 5.5, 8,   8,   10),
+  Phase = c("Phase 1","Phase 1","Phase 1","Phase 1",
+            "Phase 2","Phase 2","Phase 2",
+            "Phase 3","Phase 3","Phase 2")
+)
+
+phase_colors <- c(
+  "Phase 1" = "#c0392b",
+  "Phase 2" = "#2980b9",
+  "Phase 3" = "#27ae60"
+)
+
+phase_bands <- data.frame(
+  xmin = c(0.5, 3.5, 6.5),
+  xmax = c(3.5, 6.5, 10.5),
+  Phase = c("Phase 1","Phase 2","Phase 3")
+)
+
+ggplot() +
+
+
+  geom_rect(data = phase_bands,
+            aes(xmin = xmin, xmax = xmax,
+                ymin = -Inf, ymax = Inf,
+                fill = Phase),
+            alpha = 0.08,
+            inherit.aes = FALSE) +
+
+
+  geom_segment(data = activities,
+               aes(x = Start, xend = End,
+                   y = Activity, yend = Activity,
+                   color = Phase),
+               linewidth = 6, lineend = "round") +
+
+  
+  geom_point(data = activities,
+             aes(x = Start, y = Activity),
+             size = 2, alpha = 0.7) +
+
+  scale_color_manual(values = phase_colors) +
+  scale_fill_manual(values = phase_colors) +
+
+  scale_x_continuous(
+    breaks = 1:10,
+    labels = paste("Year", 1:10),
+    limits = c(0.5, 10.5)
+  ) +
+
+  labs(
+    x = "Project Timeline",
+    y = NULL,
+    color = "Phase",
+    fill = "Phase",
+    title = "Restoration Implementation Timeline (10-Year Plan)"
+  ) +
+
+  theme_minimal(base_size = 12) +
+  theme(
+    panel.grid.minor = element_blank(),
+    panel.grid.major.y = element_blank(),
+    legend.position = "bottom",
+    plot.title = element_text(face = "bold", size = 14),
+    axis.text.y = element_text(size = 9)
+  )
+```
+
+## Phase One (Years 1–2)
+
+To establish the contoured windbreaks surrounding the production areas, 20% of the trees and shrubs along the site perimeter will first be removed using chainsaws and tractor-mounted backhoes. The removed plant material will be chipped for use as mulch in Phase Three; tree stumps will be moved off-site to be burned. Using GIS maps and laser-levels, water flow across the landscape will be evaluated to determine optimal swale placement for maximizing water-holding capabilities. Once mapped, swales will be excavated using tractor-mounted blades and skid steer attachments to create furrows with berms immediately downhill to slow water and provide a planting area.
+
+Fifty percent of the pear trees (every other row) will also be removed during this phase to begin establishing the agroforestry system. After tree removal, the current groundcover will be inverted using a single-bottom plow followed by offset discing to chop plant debris and provide primary tillage. Final seedbed preparation will use a tractor-mounted power harrow to remove clods and create a clean planting surface.
+
+## Phase Two (Years 3–6)
+
+The windbreak swales along the site perimeter will be planted with native species representative of the juniper-cottonwood reference conditions. Swales along the northern edge bordering the riparian area will contain alternating transplants of Narrow-leaf cottonwood, Sandbar willow, Utah serviceberry, Western yarrow, and Cutleaf coneflower. Remaining swales will be planted with Utah juniper, Common pinyon, Big sagebrush, and Mountain mahogany at recommended spacing. All transplants will be sourced from nurseries located on the Western Slope of Colorado to ensure planting stock is locally adapted and of high quality.
+
+The alleyways between remaining pear tree rows will be seeded to drought-tolerant native grasses and legumes to provide high-quality forage for integrated livestock grazing. The species mix will include Blue grama grass, Bluebunch wildgrass (*Agropyron spicatum*), and Utah sweetvetch (*Hedysarum boreale*), seeded with a 12-row pull-behind drill seeder at the recommended pure-live seed (PLS) rate, depth, and spacing.
+
+## Phase Three (Years 7+)
+
+To mimic the historic flood cycle of the riparian zone, a low-cost furrow (flood) irrigation system will be installed to provide initial establishment water and periodic supplemental waterings. A diversion ditch will be trenched from the property's existing irrigation water intake and routed above the site, where it can be dammed to overflow into swales and planting rows. A second furrow below the site will capture excess runoff and divert it to an off-site storage pond.
+
+The windbreak swales will be amended with woodchips from Phase One tree removal at an application rate of 15–20 cm to increase soil organic matter and water-holding capacity, using a tractor-mounted mulch spreader. Farm-sourced compost will also be applied to the alleyways at a rate of 10–15 cm, providing an initial boost in soil organic matter and a long-term nutrient source for plant establishment and growth.
+
+------------------------------------------------------------------------
+
+# Monitoring
+
+Long-term monitoring will be essential to evaluate whether implementations were followed as prescribed, monitor indicators to assess whether activities worked, and to test alternative hypotheses [@Murray2003]. The goal of this monitoring program is to understand how agroecological installation and management strategies are working to build resilient ecosystems — specifically how agroforestry installations affect soil health, woody plant community composition, and grassland dynamics [@HeiderKuhn2023].
+
+Due to the absence of long-term empirical data, these projections are based on simulated datasets intended to illustrate expected ecological trends under the proposed restoration actions.
+
+## Soil Health
+
+Annual soil sampling from randomly selected locations dispersed throughout the site will be used to measure a mixture of physical, chemical, and biological indicators. These include:
+
+-   Soil organic matter percentage
+-   Soil fertility (macro- and micronutrient availability)
+-   Water-holding capacity
+-   Bulk density
+-   Bacteria-to-fungi ratios
+
+```{r}
+library(ggplot2)
+
+set.seed(123)
+
+soil_data <- data.frame(
+  Year = 1:10,
+  SOM = cumsum(runif(10, 0.2, 0.6)) + 2  # starting around 2%
+)
+
+ggplot(soil_data, aes(x = Year, y = SOM)) +
+  geom_line(color = "#2c7a4b", linewidth = 1.2) +
+  geom_point(size = 2) +
+  labs(
+    x = "Year",
+    y = "Soil Organic Matter (%)",
+    title = "Figure 1. Projected Soil Organic Matter Increase"
+  ) +
+  theme_minimal()
+```
+
+Projected trends in soil organic matter (Figure 1) indicate a steady increase over time following the implementation of swales, organic amendments, and reduced soil disturbance. These practices are expected to enhance soil structure, water-holding capacity, and nutrient availability, contributing to improved ecosystem function and resilience.
+
+## Tree & Shrub Census
+
+Every spring, all living and dead members of each tree and shrub species will be identified and tallied to determine annual survival rates. Over time, this census will reveal which species are best adapted to current and projected climate conditions, informing future planting efforts.
+
+```{r}
+library(ggplot2)
+
+set.seed(123)
+
+tree_data <- data.frame(
+  Year = 1:10,
+  SurvivalRate = 100 * exp(-0.12 * (1:10)) + runif(10, -3, 3)
+)
+
+ggplot(tree_data, aes(x = Year, y = SurvivalRate)) +
+  geom_line(color = "#2980b9", linewidth = 1.2) +
+  geom_hline(yintercept = 30, linetype = "dashed", color = "red") +
+  labs(
+    x = "Year",
+    y = "Survival Rate (%)",
+    title = "Figure 2. Projected Tree and Shrub Survival Rates"
+  ) +
+  theme_minimal()
+```
+
+Simulated survival rates of planted woody species (Figure 2) show an expected decline during the initial establishment period, followed by stabilization as surviving individuals become more resilient. The 30% survival threshold provides a critical benchmark for evaluating restoration success, with values below this level indicating the need for adaptive management interventions such as replanting or modified irrigation strategies.
+
+## Grassland Health
+
+Randomly selected 1.5 m × 1.5 m quadrats dispersed throughout the agroforestry production area will be evaluated for total percent soil cover, species diversity, and total biomass to assess how planting, amendment, and livestock integration practices affect grassland health.
+
+All monitoring will occur annually at the same locations over a minimum of five years and will include control sites located outside the site's perimeter. Soil sampling sites and pasture monitoring quadrats will be flagged, photographed, and documented in GIS to ensure replication in the exact spot from year to year. All data will be stored in an accessible electronic location and shared between researchers and project managers.
+
+```{r}
+diversity <- data.frame(
+  Year = 1:10,
+  Shannon = cumsum(runif(10, 0.05, 0.2)) + 1
+)
+
+ggplot(diversity, aes(x = Year, y = Shannon)) +
+  geom_line(color = "#27ae60", linewidth = 1.2) +
+  geom_point() +
+  labs(
+    x = "Year",
+    y = "Shannon Diversity Index",
+    title = "Projected Increase in Plant Diversity"
+  ) +
+  theme_minimal()
+```
+
+Projected increases in plant diversity, as measured by the Shannon Index (Figure 3), suggest that restoration efforts will support a more complex and functionally diverse plant community over time. Increased diversity is associated with greater ecosystem stability, improved resistance to invasive species, and enhanced provision of ecosystem services.
+
+------------------------------------------------------------------------
+
+# Management and Maintenance
+
+This project aims to restore ecosystem functions and resilience in a dynamic and complex system. By implementing restorative practices and monitoring specific indicators of ecosystem health, we will be able to determine whether these interventions have achieved the goals of addressing the constraints present at the site. Adaptive management strategies will be implemented using monitoring results to direct future restoration efforts and identify any potential thresholds [@Murray2003]. Funding for monitoring and maintenance will be procured from sales of agroforestry products and fees from educational workshops.
+
+Following initial restoration activities, long-term management of the established agroecological system will be critical. Managing the windbreak swales for continued biodiversity and habitat creation will require periodic watering, pest and disease intervention, and occasional pruning and thinning to maintain healthy stand structure. Agroforestry pasture maintenance will require periodic watering and careful management of livestock integration — including rotational paddock fencing and multi-species grazing plans.
+
+If timeline goals are not met, an examination of current restoration actions measured against the project budget will take place, with input from project stakeholders. Reductions in percentage of non-native removal and/or revegetation goals could be considered while still pursuing the main goals of increasing biodiversity and developing agroforestry systems.
+
+Potential thresholds indicating that the system is not achieving its goals include:
+
+-   A **decrease** in soil health metrics relative to controls
+-   **Tree and shrub survival rates below 30%**
+-   **Less plant cover and species diversity** in agroforestry pastures than in control sites
+
+Any indication that these thresholds have been crossed will initiate a new assessment and redesign of restoration actions.
+
+------------------------------------------------------------------------
+
+# References
+
+::: {#refs}
+:::
+
+------------------------------------------------------------------------
+
+# Appendix {.unnumbered}
+
+**Appendix A:** Map of restoration site indicating boundary, access points, and scale bar. *(Source: Google Earth)*
+
+```{r}
+knitr::include_graphics("figures/Picture5.png")
+```
+
+**Appendix B:** Photo taken from the northwest corner of the orchard, showing the unmanaged state of the trees and grass.
+
+```{r}
+{out.width="60%"}
+knitr::include_graphics("figures/Picture1.jpg")
+```
+
+**Appendix C:** Photo taken along the northern edge of the orchard, showing proximity to the dense concentration of Narrowleaf cottonwoods in the North Fork River riparian area.
+
+```{r}
+{out.width="60%"}
+knitr::include_graphics("figures/Picture2.jpg")
+```
+
+**Appendix D:** Photo taken in the middle of the orchard, showing sparse groundcover and woody debris from past orchard management.
+
+```{r}
+{out.width="60%"}
+knitr::include_graphics("figures/Picture3.jpg")
+```
+
+**Appendix E:** Average mean temperature change in western Colorado, 1895–2019. *(Source: climate.gov)*
+
+```{r}
+knitr::include_graphics("figures/Picture4.png")
+```
